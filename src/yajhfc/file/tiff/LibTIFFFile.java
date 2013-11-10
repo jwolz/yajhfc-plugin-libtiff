@@ -55,7 +55,13 @@ public class LibTIFFFile implements TIFFConstants {
     
     public LibTIFFFile() {
         super();
-        LibTIFFErrorHandler.initialize();
+        try {  
+        	LibTIFFErrorHandler.initialize();
+        } catch (UnsatisfiedLinkError e) {
+        	throw new RuntimeException(e);
+        } catch (NoClassDefFoundError e) {
+        	throw new RuntimeException(e);
+        } 
     }
 
     public LibTIFFFile(File f) throws IOException {
