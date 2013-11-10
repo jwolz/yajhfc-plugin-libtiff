@@ -23,7 +23,7 @@ public class LibTIFFImageReader implements TIFFImageReader {
      * 
      */
     public LibTIFFImageReader(File tif) throws IOException {
-        tifFile = new LibTIFFFile(tif);
+    	tifFile = new LibTIFFFile(tif);
     }
 
     /* (non-Javadoc)
