@@ -4,11 +4,12 @@ import java.nio.Buffer;
 
 import com.sun.jna.Library;
 import com.sun.jna.Native;
+import com.sun.jna.Pointer;
 import com.sun.jna.ptr.ByReference;
 
 
 public interface LibTIFF extends Library {
-    LibTIFF INSTANCE = (LibTIFF)Native.loadLibrary("tiff", LibTIFF.class);
+    LibTIFF INSTANCE = (LibTIFF)Native.loadLibrary(LibName.getLibTIFFName(), LibTIFF.class);
     
     //    typedef uint32 ttag_t;          /* directory tag */
     //    typedef uint16 tdir_t;          /* directory index */
@@ -45,4 +46,9 @@ public interface LibTIFF extends Library {
     int TIFFNumberOfStrips(TIFFPointer tif);
     //  tsize_t TIFFReadEncodedStrip(TIFF*, tstrip_t, tdata_t, tsize_t);
     int TIFFReadEncodedStrip(TIFFPointer tif, int strip, Buffer buf, int size);
+    
+    //TIFFErrorHandler TIFFSetErrorHandler(TIFFErrorHandler handler);
+    Pointer TIFFSetErrorHandler(LibTiffErrWarnHandler handler);
+    //TIFFWarningHandler TIFFSetWarningHandler(TIFFWarningHandler handler);
+    Pointer TIFFSetWarningHandler(LibTiffErrWarnHandler handler);
 }
