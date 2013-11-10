@@ -34,7 +34,6 @@ import com.sun.jna.ptr.ShortByReference;
 /**
  * Read TIFF files using libtiff and JNA
  * 
- * TODO: ErrorHandler and WarningHandler?
  * @author jonas
  *
  */
@@ -56,10 +55,11 @@ public class LibTIFFFile implements TIFFConstants {
     
     public LibTIFFFile() {
         super();
+        LibTIFFErrorHandler.initialize();
     }
 
     public LibTIFFFile(File f) throws IOException {
-        super();
+        this();
         open(f);
     }
     
@@ -85,7 +85,7 @@ public class LibTIFFFile implements TIFFConstants {
         tiffPointer = LibTIFF.INSTANCE.TIFFOpen(f.getPath(), mode);
         if (tiffPointer.isNull()) {
             tiffPointer = null;
-            throw new IOException("Could not open TIFF file " + f);
+            throw LibTIFFErrorHandler.createIOException("Could not open TIFF file " + f);
         }
         page = 1;
     }
@@ -247,7 +247,7 @@ public class LibTIFFFile implements TIFFConstants {
             bBuf.position(imageOffset);
             int result = LibTIFF.INSTANCE.TIFFReadEncodedStrip(tiffPointer, stripCount, bBuf, stripSize);
             if (result == -1) {
-                throw new IOException("Read error on input strip number " + stripCount);
+                throw LibTIFFErrorHandler.createIOException("Read error on input strip number " + stripCount);
             }
             imageOffset += result;
         }
@@ -301,7 +301,7 @@ public class LibTIFFFile implements TIFFConstants {
         int[] imageData = new int[width * height];
         int rv = LibTIFF.INSTANCE.TIFFReadRGBAImageOriented(tiffPointer, width, height, imageData, ORIENTATION_TOPLEFT, 0);
         if (rv == 0)
-            throw new IOException("Could not successfully read the RGBA image");
+            throw LibTIFFErrorHandler.createIOException("Could not successfully read the RGBA image");
 
         DataBuffer imgBuf = new DataBufferInt(imageData, imageData.length);
         WritableRaster wr = Raster.createPackedRaster(imgBuf, width, height, width, ABGR_bandmasks, null);
