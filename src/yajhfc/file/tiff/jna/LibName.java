@@ -11,6 +11,8 @@ import com.sun.jna.NativeLibrary;
 import com.sun.jna.Platform;
 
 /**
+ * Library names for different platforms
+ * 
  * @author jonas
  *
  */
