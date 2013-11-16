@@ -1,0 +1,124 @@
+<project name="yajhfc-libtiff-plugin" default="dist" basedir=".">
+	<description>
+        YajHFC libtiff Plugin build file
+    </description>
+	<!-- set global properties for this build -->
+	<property name="src" location="src"/>
+	<property name="build.compiler" value="modern"/>
+	<property name="build.sysclasspath" value="ignore"/>
+
+	<property file="build.properties"/>
+	<property name="yajhfc-jar" location="../yajhfc/build/yajhfc.jar"/>
+	<property name="yajhfc-pdfplugin-jar" location="../yajhfc-pdf-plugin/build/yajhfc-pdf-plugin.jar"/>
+
+	<property name="build" location="build"/>
+	<property name="dist-extra" location="dist"/>
+	<property name="jar-extra" location="jar"/>
+	<property name="jar-output" location="${build}/yajhfc-libtiff-plugin.jar"/>
+	<property name="srczip-output" location="${build}/yajhfc-libtiff-plugin-src.zip"/>
+	<property name="binzip-output" location="${build}/yajhfc-libtiff-plugin.zip"/> 
+	<property name="itext.path" location="lib"/>
+	<property name="itext.jar" location="itextpdf-5.1.3.jar"/>
+	<property name="jna-dir" location="../../jna"/>
+
+	<property environment="env"/>
+	
+	<target name="init">
+	
+		<fail message="YajHFC jar not found. Edit build.properties to specify the correct location.">
+			<condition>
+				<not>
+				<available file="${yajhfc-jar}"/>
+				</not>
+			</condition>
+		</fail>
+		
+		<fail message="YajHFC PDF plugin jar not found. Edit build.properties to specify the correct location.">
+			<condition>
+				<not>
+				<available file="${yajhfc-pdfplugin-jar}"/>
+				</not>
+			</condition>
+		</fail>
+		
+		<fail message="iText jar not found. Edit build.properties to specify the correct location.">
+			<condition>
+				<not>
+				<available file="${itext.path}/${itext.jar}"/>
+				</not>
+			</condition>
+		</fail>
+
+		<fail message="jna.jar not found in ${jna-dir}. Use build.properties to specify the correct path.">
+			<condition>
+				<not>
+					<available file="${jna-dir}/jna.jar" />
+				</not>
+			</condition>
+		</fail>
+		
+		<!-- Create the time stamp -->
+		<tstamp/>
+		<!-- Create the build directory structure used by compile -->
+		<mkdir dir="${build}"/>
+		
+
+	</target>
+
+	<target name="compile" depends="init" description="compile the source code" >
+		<!-- Compile the java code from ${src} into ${build} -->
+		<javac srcdir="${src}" includes="**/*.java" destdir="${build}" source="1.5" target="1.5" encoding="utf-8" debug="true" debuglevel="lines,source">
+			<classpath>
+				<pathelement path="${classpath}"/>
+				<pathelement location="${yajhfc-jar}"/>
+				<pathelement location="${yajhfc-pdfplugin-jar}"/>
+				<pathelement location="${itext.path}/${itext.jar}"/>
+				<pathelement location="${jna-dir}/jna.jar"/>
+			</classpath>
+		</javac>
+
+		<manifest file="${build}/MANIFEST.MF">
+		   <attribute name="YajHFC-Plugin-InitClass" value="yajhfc.file.tiff.LibTIFFEntryPoint"/>
+		   <attribute name="Class-Path" value="lib/${itext.jar}:lib/jna.jar:yajhfc-pdf-plugin.jar:yajhfc.jar"/>
+		</manifest>
+	</target>
+
+	<target name="dist" depends="compile" description="generate the distribution" >
+		<jar jarfile="${jar-output}" manifest="${build}/MANIFEST.MF">
+			<fileset dir="${build}" includes="yajhfc/**,com/**"/>
+			<!-- <fileset dir="i18n/bin" includes="**/*.class,**/*.properties"/> -->
+			<fileset dir="${jar-extra}"/>
+		</jar>
+		
+		<zip destfile="${binzip-output}"> 
+			<zipfileset dir="${dist-extra}" />
+			<zipfileset dir="." includes="COPYING" />
+			<zipfileset dir="${build}" includes="*.jar" />  
+			<zipfileset dir="${jna-dir}" prefix="lib">
+				<include name="jna.jar"/>
+			</zipfileset>
+		</zip>  
+	</target>
+
+	<target name="sourcedist" depends="init" description="generate the source distribution" >
+		<zip destfile="${srczip-output}">
+			<zipfileset dir="." prefix="yajhfc-pdf-plugin/">
+				<exclude name="bin/"/>
+				<exclude name="build/"/>
+				<exclude name="setup/Output/"/>
+				<exclude name="**/*.jar"/>
+				<exclude name="**/*.log"/>
+				<exclude name="**/*~"/>
+				<exclude name="**/.hg/**"/>
+			</zipfileset>
+		</zip>
+	</target>
+
+	<target name="fulldist" depends="dist,sourcedist" description="generate both source and binary distributions"/>
+
+	<target name="clean" description="clean up" >
+		<!-- Delete the ${build} directory tree and the jar file -->
+		<delete dir="${build}"/>
+		<delete file="${jar-output}"/>
+	</target>
+</project>

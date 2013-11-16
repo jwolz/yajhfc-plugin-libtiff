@@ -40,15 +40,15 @@ import com.sun.jna.ptr.ShortByReference;
 public class LibTIFFFile implements TIFFConstants {
     static final Logger log = Logger.getLogger(LibTIFFFile.class.getName());
     
-    protected static int[] ABGR_bandmasks = new int[] { 0x000000ff , 0x0000ff00, 0x00ff0000, 0xff000000};
-    protected static ColorModel ColorModel_AGBR = new DirectColorModel(32,
+    protected static final int[] ABGR_bandmasks = new int[] { 0x000000ff , 0x0000ff00, 0x00ff0000, 0xff000000 };
+    protected static final ColorModel ColorModel_AGBR = new DirectColorModel(32,
             0x000000ff,   // Red
             0x0000ff00,   // Green
             0x00ff0000,   // Blue
             0xff000000    // Alpha
             );
-    private static byte[] bw = {(byte) 0xff, (byte) 0};  
-    protected static IndexColorModel ColorModel_BlackAndWhite = new IndexColorModel(1, 2, bw, bw, bw);
+    private static final byte[] bw = {(byte) 0xff, (byte) 0};  
+    protected static final IndexColorModel ColorModel_BlackAndWhite = new IndexColorModel(1, 2, bw, bw, bw);
     
     protected TIFFPointer tiffPointer;
     protected int page=-1;
@@ -58,9 +58,11 @@ public class LibTIFFFile implements TIFFConstants {
         try {  
         	LibTIFFErrorHandler.initialize();
         } catch (UnsatisfiedLinkError e) {
-        	throw new RuntimeException(e);
+        	System.setProperty(LibTIFFEntryPoint.USE_NATIVE_TIFF_PROPERTY, "false");
+        	throw new RuntimeException("Could not initialize libtiff, disabling native TIFF support.", e);
         } catch (NoClassDefFoundError e) {
-        	throw new RuntimeException(e);
+        	System.setProperty(LibTIFFEntryPoint.USE_NATIVE_TIFF_PROPERTY, "false");
+        	throw new RuntimeException("Could not initialize libtiff, disabling native TIFF support.", e);
         } 
     }
 
@@ -88,6 +90,7 @@ public class LibTIFFFile implements TIFFConstants {
         if (tiffPointer != null) 
             throw new IOException("Close the open file first");
         
+        log.fine("Open " + f + " with mode " + mode);
         tiffPointer = LibTIFF.INSTANCE.TIFFOpen(f.getPath(), mode);
         if (tiffPointer.isNull()) {
             tiffPointer = null;
@@ -101,6 +104,7 @@ public class LibTIFFFile implements TIFFConstants {
      */
     public void close() {
         if (tiffPointer != null) {
+        	log.fine("Closing TIFF file");
             LibTIFF.INSTANCE.TIFFClose(tiffPointer);
             tiffPointer = null;
             page = -1;
@@ -122,8 +126,10 @@ public class LibTIFFFile implements TIFFConstants {
     public boolean nextPage() {
         if (LibTIFF.INSTANCE.TIFFReadDirectory(tiffPointer)!=0) {
             page++;
+        	log.fine("TIFF has another page (" + page + ")");
             return true;
         } else {
+        	log.fine("TIFF does not have another page");
             return false;
         }
     }
