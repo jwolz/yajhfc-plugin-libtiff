@@ -92,7 +92,7 @@ public class LibTIFFFile implements TIFFConstants {
         
         log.fine("Open " + f + " with mode " + mode);
         tiffPointer = LibTIFF.INSTANCE.TIFFOpen(f.getPath(), mode);
-        if (tiffPointer.isNull()) {
+        if (tiffPointer == null || tiffPointer.isNull()) {
             tiffPointer = null;
             throw LibTIFFErrorHandler.createIOException("Could not open TIFF file " + f);
         }
