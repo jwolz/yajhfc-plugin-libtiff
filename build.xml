@@ -102,7 +102,7 @@
 
 	<target name="sourcedist" depends="init" description="generate the source distribution" >
 		<zip destfile="${srczip-output}">
-			<zipfileset dir="." prefix="yajhfc-pdf-plugin/">
+			<zipfileset dir="." prefix="yajhfc-plugin-libtiff/">
 				<exclude name="bin/"/>
 				<exclude name="build/"/>
 				<exclude name="setup/Output/"/>
