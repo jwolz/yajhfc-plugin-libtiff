@@ -20,6 +20,7 @@ exit /b 1
   set include=%include%;C:\WinDDK\7600.16385.1\inc\crt;C:\WinDDK\7600.16385.1\inc\api\crt\stl60
   set lib=%lib%;C:\WinDDK\7600.16385.1\lib\Crt\i386;C:\WinDDK\7600.16385.1\lib\wxp\i386
   set libtiff_suffix=
+  set extralibs=msvcrt_winxp.obj
   goto build
 :64bit
   call c:\WinDDK\7600.16385.1\bin\setenv c:\WinDDK\7600.16385.1 fre x64
@@ -27,6 +28,7 @@ exit /b 1
   set include=%include%;C:\WinDDK\7600.16385.1\inc\crt;C:\WinDDK\7600.16385.1\inc\api\crt\stl60
   set lib=%lib%;C:\WinDDK\7600.16385.1\lib\Crt\amd64;C:\WinDDK\7600.16385.1\lib\wnet\amd64
   set libtiff_suffix=64
+  set extralibs=msvcrt_win2003.obj
   goto build
 :build
 cd %builddir%\jbigkit
@@ -47,7 +49,7 @@ if errorlevel 1 exit /b 6
 cd ..\tiff-4.0.3
 nmake /f Makefile.vc clean
 if errorlevel 1 exit /b 7
-nmake /f Makefile.vc
+nmake /f Makefile.vc EXTRALIBS=%extralibs%
 if errorlevel 1 exit /b 8
 cd ..
 copy tiff-4.0.3\libtiff\libtiff.dll dist\libtiff%libtiff_suffix%.dll

@@ -1,5 +1,5 @@
 diff -rupN -x '*.obj' -x '*.lib' -x '*.dll' -x '*.exe' -x '*.ilk' -x '*.exp' tiff-4.0.3/nmake.opt orig/tiff-4.0.3/nmake.opt
---- tiff-4.0.3/nmake.opt	2013-11-16 10:54:36.683527600 +0100
+--- tiff-4.0.3/nmake.opt	2013-11-16 16:23:00.330128500 +0100
 +++ orig/tiff-4.0.3/nmake.opt	2013-11-16 13:15:29.100735900 +0100
 @@ -54,33 +54,33 @@ LOGLUV_SUPPORT	= 1
  #
@@ -48,7 +48,7 @@ diff -rupN -x '*.obj' -x '*.lib' -x '*.dll' -x '*.exe' -x '*.ilk' -x '*.exp' tif
  
  #
  # Comment out the following lines to disable strip chopping
-@@ -129,10 +129,10 @@ USE_WIN_CRT_LIB = 1
+@@ -129,15 +129,15 @@ USE_WIN_CRT_LIB = 1
  # for the option reference.
  #
  MAKE	=	nmake /nologo
@@ -62,8 +62,14 @@ diff -rupN -x '*.obj' -x '*.lib' -x '*.dll' -x '*.exe' -x '*.ilk' -x '*.exp' tif
  
  CFLAGS  =	$(OPTFLAGS) $(INCL) $(EXTRAFLAGS)
  CXXFLAGS =	$(OPTFLAGS) $(INCL) $(EXTRAFLAGS)
+ EXTRAFLAGS =
+-LIBS	= $(EXTRALIBS)
++LIBS	=
+ 
+ # Name of the output shared library
+ DLLNAME	= libtiff.dll
 diff -rupN -x '*.obj' -x '*.lib' -x '*.dll' -x '*.exe' -x '*.ilk' -x '*.exp' tiff-4.0.3/tools/Makefile.vc orig/tiff-4.0.3/tools/Makefile.vc
---- tiff-4.0.3/tools/Makefile.vc	2013-11-16 11:32:47.206290400 +0100
+--- tiff-4.0.3/tools/Makefile.vc	2013-11-16 14:56:05.507996400 +0100
 +++ orig/tiff-4.0.3/tools/Makefile.vc	2013-11-16 13:15:33.788235900 +0100
 @@ -36,7 +36,7 @@ TARGETS	=	bmp2tiff.exe tiffinfo.exe tiff
  		tiffmedian.exe tiffset.exe tiffsplit.exe 
