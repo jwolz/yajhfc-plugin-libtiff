@@ -27,7 +27,7 @@ Install the yajhfc-pdfplugin package.
 Else:
 1. Unpack this ZIP file into the same folder as the yajhfc.jar.
 2. Start YajHFC, go to Options->Plugins&JDBC and click "Add plugin".
-3. Select yajhfc-libtiff-plugin.jar 
+3. Select yajhfc-plugin-libtiff.jar 
 4. Restart YajHFC
 
    

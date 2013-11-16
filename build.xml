@@ -14,9 +14,9 @@
 	<property name="build" location="build"/>
 	<property name="dist-extra" location="dist"/>
 	<property name="jar-extra" location="jar"/>
-	<property name="jar-output" location="${build}/yajhfc-libtiff-plugin.jar"/>
-	<property name="srczip-output" location="${build}/yajhfc-libtiff-plugin-src.zip"/>
-	<property name="binzip-output" location="${build}/yajhfc-libtiff-plugin.zip"/> 
+	<property name="jar-output" location="${build}/yajhfc-plugin-libtiff.jar"/>
+	<property name="srczip-output" location="${build}/yajhfc-plugin-libtiff-src.zip"/>
+	<property name="binzip-output" location="${build}/yajhfc-plugin-libtiff.zip"/> 
 	<property name="itext.path" location="lib"/>
 	<property name="itext.jar" location="itextpdf-5.1.3.jar"/>
 	<property name="jna-dir" location="../../jna"/>
