@@ -20,6 +20,8 @@ public final class LibTIFFErrorHandler implements LibTiffErrWarnHandler {
 	
 	public synchronized static void initialize() {
 		if (!initialized) {
+		    // Initialize LibC
+		    LibC.INSTANCE.hashCode();
 			LibTIFF.INSTANCE.TIFFSetErrorHandler(ERR_HANDLER);
 			LibTIFF.INSTANCE.TIFFSetWarningHandler(WARN_HANDLER);
 			initialized = true;
