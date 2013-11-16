@@ -1,0 +1,91 @@
+diff -rupN -x '*.obj' -x '*.lib' -x '*.dll' -x '*.exe' jbigkit/libjbig/Makefile.vc orig/jbigkit/libjbig/Makefile.vc
+--- jbigkit/libjbig/Makefile.vc	2013-11-16 10:50:02.748957300 +0100
++++ orig/jbigkit/libjbig/Makefile.vc	1970-01-01 01:00:00.000000000 +0100
+@@ -1,36 +0,0 @@
+-# Unix makefile for the JBIG-KIT library
+-# $Id: Makefile 1285 2008-08-18 13:36:45Z mgk25 $
+-
+-# Select an ANSI/ISO C compiler here, GNU gcc is recommended
+-MAKE =	nmake /nologo
+-CC	=	cl /nologo
+-CXX	=	cl /nologo
+-AR	=	lib /nologo
+-LD	=	link /nologo
+-
+-# Options for the compiler: A high optimization level is suggested
+-CCFLAGS = /nologo /Ox /MD /EHsc /W3 /D_CRT_SECURE_NO_DEPRECATE /c
+-
+-all: libjbig.lib
+-
+-libjbig.lib: jbig.obj jbig_ar.obj
+-	-del libjbig.lib
+-	$(AR) /out:libjbig.lib jbig.obj jbig_ar.obj
+-
+-libjbig85.lib: jbig85.obj jbig_ar.obj
+-	-del libjbig85.lib
+-	ar rc libjbig85.lib jbig85.obj jbig_ar.obj
+-	-ranlib libjbig85.lib
+-
+-jbig.obj: jbig.c jbig.h jbig_ar.h
+-jbig85.obj: jbig85.c jbig85.h jbig_ar.h
+-jbig_ar.obj: jbig_ar.c jbig_ar.h
+-tstcodec.obj: tstcodec.c jbig.h
+-tstcodec85.obj: tstcodec85.c jbig85.h
+-
+-clean:
+-	-del *.obj
+-	-del *.lib
+-	-del *.dll
+-	-del *.dll.manifest
+-	-del *.pdb
+diff -rupN -x '*.obj' -x '*.lib' -x '*.dll' -x '*.exe' jbigkit/Makefile.vc orig/jbigkit/Makefile.vc
+--- jbigkit/Makefile.vc	2013-11-16 11:27:19.969180100 +0100
++++ orig/jbigkit/Makefile.vc	1970-01-01 01:00:00.000000000 +0100
+@@ -1,47 +0,0 @@
+-# Unix makefile for JBIG-KIT
+-# $Id: Makefile 1303 2008-08-30 20:16:20Z mgk25 $
+-
+-# Select an ANSI/ISO C compiler here, GNU gcc is recommended
+-MAKE =	nmake /nologo
+-CC	=	cl /nologo
+-CXX	=	cl /nologo
+-AR	=	lib /nologo
+-LD	=	link /nologo
+-
+-# Options for the compiler: A high optimization level is suggested
+-CCFLAGS = /nologo /Ox /MD /EHsc /W3 /D_CRT_SECURE_NO_DEPRECATE /c
+-#CCFLAGS = -O -g -W -Wall -ansi -pedantic #-DDEBUG  # developer only
+-
+-CFLAGS = $(CCFLAGS) -I../libjbig
+-
+-VERSION=2.0
+-
+-all: lib 
+-	@echo "Enter 'make test' in order to start some automatic tests."
+-
+-lib:
+-	cd libjbig
+-	$(MAKE) /f Makefile.vc "CC=$(CC)" "CFLAGS=$(CFLAGS)")
+-	cd ..
+-
+-pbm: lib
+-	cd pbmtools
+-	$(MAKE) /f Makefile.vc "CC=$(CC)" "CFLAGS=$(CFLAGS)")
+-	cd ..
+-	
+-test: lib pbm
+-	cd libjbig
+-	$(MAKE) /f Makefile.vc "CC=$(CC)" "CFLAGS=$(CFLAGS)" test)
+-	cd ..
+-	cd pbmtools
+-	$(MAKE) /f Makefile.vc "CC=$(CC)" "CFLAGS=$(CFLAGS)" test)
+-	cd ..
+-
+-clean:
+-	cd libjbig
+-	$(MAKE) /f Makefile.vc clean
+-	cd ..
+-#	cd pbmtools
+-#	$(MAKE) /f Makefile.vc clean
+-#	cd ..
+-

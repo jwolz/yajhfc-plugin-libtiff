@@ -1,0 +1,65 @@
+diff -rupN -x '*.obj' -x '*.lib' -x '*.dll' -x '*.exe' jpeg-6b/jconfig.h orig/jpeg-6b/jconfig.h
+--- jpeg-6b/jconfig.h	2013-11-15 20:09:49.155867500 +0100
++++ orig/jpeg-6b/jconfig.h	1970-01-01 01:00:00.000000000 +0100
+@@ -1,45 +0,0 @@
+-/* jconfig.vc --- jconfig.h for Microsoft Visual C++ on Windows 95 or NT. */
+-/* see jconfig.doc for explanations */
+-
+-#define HAVE_PROTOTYPES
+-#define HAVE_UNSIGNED_CHAR
+-#define HAVE_UNSIGNED_SHORT
+-/* #define void char */
+-/* #define const */
+-#undef CHAR_IS_UNSIGNED
+-#define HAVE_STDDEF_H
+-#define HAVE_STDLIB_H
+-#undef NEED_BSD_STRINGS
+-#undef NEED_SYS_TYPES_H
+-#undef NEED_FAR_POINTERS	/* we presume a 32-bit flat memory model */
+-#undef NEED_SHORT_EXTERNAL_NAMES
+-#undef INCOMPLETE_TYPES_BROKEN
+-
+-/* Define "boolean" as unsigned char, not int, per Windows custom */
+-#ifndef __RPCNDR_H__		/* don't conflict if rpcndr.h already read */
+-typedef unsigned char boolean;
+-#endif
+-#define HAVE_BOOLEAN		/* prevent jmorecfg.h from redefining it */
+-
+-
+-#ifdef JPEG_INTERNALS
+-
+-#undef RIGHT_SHIFT_IS_UNSIGNED
+-
+-#endif /* JPEG_INTERNALS */
+-
+-#ifdef JPEG_CJPEG_DJPEG
+-
+-#define BMP_SUPPORTED		/* BMP image file format */
+-#define GIF_SUPPORTED		/* GIF image file format */
+-#define PPM_SUPPORTED		/* PBMPLUS PPM/PGM image file format */
+-#undef RLE_SUPPORTED		/* Utah RLE image file format */
+-#define TARGA_SUPPORTED		/* Targa image file format */
+-
+-#define TWO_FILE_COMMANDLINE	/* optional */
+-#define USE_SETMODE		/* Microsoft has setmode() */
+-#undef NEED_SIGNAL_CATCHER
+-#undef DONT_USE_B_MODE
+-#undef PROGRESS_REPORT		/* optional */
+-
+-#endif /* JPEG_CJPEG_DJPEG */
+diff -rupN -x '*.obj' -x '*.lib' -x '*.dll' -x '*.exe' jpeg-6b/makefile.vc orig/jpeg-6b/makefile.vc
+--- jpeg-6b/makefile.vc	2013-11-16 10:57:27.328454000 +0100
++++ orig/jpeg-6b/makefile.vc	2013-11-16 13:14:46.392728100 +0100
+@@ -9,11 +9,7 @@
+ # To build an optimized library without debug info, say "nmake nodebug=1".
+ 
+ # Pull in standard variable definitions
+-#!include <win32.mak>
+-cc	=	cl /nologo /Ox /MD /EHsc /W3 /D_CRT_SECURE_NO_DEPRECATE /c
+-cxx	=	cl /nologo /Ox /MD /EHsc /W3 /D_CRT_SECURE_NO_DEPRECATE /c
+-AR	=	lib /nologo
+-link	=	link /nologo
++!include <win32.mak>
+ 
+ # You may want to adjust these compiler options:
+ CFLAGS= $(cflags) $(cdebug) $(cvars) -I.

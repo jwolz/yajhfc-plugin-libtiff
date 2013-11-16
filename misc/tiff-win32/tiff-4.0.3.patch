@@ -1,0 +1,76 @@
+diff -rupN -x '*.obj' -x '*.lib' -x '*.dll' -x '*.exe' -x '*.ilk' -x '*.exp' tiff-4.0.3/nmake.opt orig/tiff-4.0.3/nmake.opt
+--- tiff-4.0.3/nmake.opt	2013-11-16 10:54:36.683527600 +0100
++++ orig/tiff-4.0.3/nmake.opt	2013-11-16 13:15:29.100735900 +0100
+@@ -54,33 +54,33 @@ LOGLUV_SUPPORT	= 1
+ #
+ # Uncomment and edit following lines to enable JPEG support.
+ #
+-JPEG_SUPPORT	= 1
+-JPEGDIR 	= C:\Users\jonas\build\jpeg-6b
+-JPEG_INCLUDE	= -I$(JPEGDIR)
+-JPEG_LIB 	= $(JPEGDIR)/libjpeg.lib
++#JPEG_SUPPORT	= 1
++#JPEGDIR 	= d:/projects/jpeg-6b
++#JPEG_INCLUDE	= -I$(JPEGDIR)
++#JPEG_LIB 	= $(JPEGDIR)/Release/jpeg.lib
+ 
+ #
+ # Uncomment and edit following lines to enable ZIP support
+ # (required for Deflate compression and Pixar log-format)
+ #
+-ZIP_SUPPORT	= 1
+-ZLIBDIR 	= C:\Users\jonas\build\zlib-1.2.8
+-ZLIB_INCLUDE	= -I$(ZLIBDIR)
+-ZLIB_LIB 	= $(ZLIBDIR)/zlib.lib
++#ZIP_SUPPORT	= 1
++#ZLIBDIR 	= d:/projects/zlib-1.2.1
++#ZLIB_INCLUDE	= -I$(ZLIBDIR)
++#ZLIB_LIB 	= $(ZLIBDIR)/zlib.lib
+ 
+ #
+ # Uncomment and edit following lines to enable ISO JBIG support
+ #
+-JBIG_SUPPORT	= 1
+-JBIGDIR 	= C:\Users\jonas\build\jbigkit
+-JBIG_INCLUDE	= -I$(JBIGDIR)/libjbig
+-JBIG_LIB 	= $(JBIGDIR)/libjbig/libjbig.lib
++#JBIG_SUPPORT	= 1
++#JBIGDIR 	= d:/projects/jbigkit
++#JBIG_INCLUDE	= -I$(JBIGDIR)/libjbig
++#JBIG_LIB 	= $(JBIGDIR)/libjbig/jbig.lib
+ 
+ #
+ # Uncomment following line to enable Pixar log-format algorithm
+ # (Zlib required).
+ #
+-PIXARLOG_SUPPORT = 1
++#PIXARLOG_SUPPORT = 1
+ 
+ #
+ # Comment out the following lines to disable strip chopping
+@@ -129,10 +129,10 @@ USE_WIN_CRT_LIB = 1
+ # for the option reference.
+ #
+ MAKE	=	nmake /nologo
+-CC	=	cl /nologo /MD
+-CXX	=	cl /nologo  /MD
++CC	=	cl /nologo
++CXX	=	cl /nologo
+ AR	=	lib /nologo
+-LD	=	link /nologo 
++LD	=	link /nologo
+ 
+ CFLAGS  =	$(OPTFLAGS) $(INCL) $(EXTRAFLAGS)
+ CXXFLAGS =	$(OPTFLAGS) $(INCL) $(EXTRAFLAGS)
+diff -rupN -x '*.obj' -x '*.lib' -x '*.dll' -x '*.exe' -x '*.ilk' -x '*.exp' tiff-4.0.3/tools/Makefile.vc orig/tiff-4.0.3/tools/Makefile.vc
+--- tiff-4.0.3/tools/Makefile.vc	2013-11-16 11:32:47.206290400 +0100
++++ orig/tiff-4.0.3/tools/Makefile.vc	2013-11-16 13:15:33.788235900 +0100
+@@ -36,7 +36,7 @@ TARGETS	=	bmp2tiff.exe tiffinfo.exe tiff
+ 		tiffmedian.exe tiffset.exe tiffsplit.exe 
+ 
+ INCL		= 	-I..\libtiff -I..\port -DNEED_LIBPORT
+-LIBS		=	$(LIBS) ..\port\libport.lib ..\libtiff\libtiff_i.lib
++LIBS		=	$(LIBS) ..\port\libport.lib ..\libtiff\libtiff.lib
+ 
+ default:	$(TARGETS)
+ 
