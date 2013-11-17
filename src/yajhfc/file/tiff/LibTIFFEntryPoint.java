@@ -7,14 +7,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.logging.Logger;
 
-import com.sun.jna.Native;
-import com.sun.jna.NativeLibrary;
-import com.sun.jna.Platform;
-
-import yajhfc.Utils;
-import yajhfc.file.tiff.TIFFImageReader;
-import yajhfc.file.tiff.TIFFImageReaderFactory;
-import yajhfc.file.tiff.jna.LibName;
 import yajhfc.launch.Launcher2;
 import yajhfc.plugin.PluginManager;
 
@@ -36,19 +28,22 @@ public class LibTIFFEntryPoint {
      */
     public static boolean init(int startupMode) {
     	log.fine("Initializing libtiff plugin...");
-        TIFFImageReaderFactory.DEFAULT = new TIFFImageReaderFactory() {
-          @Override
-            public TIFFImageReader createReader(File tiff) throws IOException {
-        	  	if (!Launcher2.isPropertyTrue(USE_NATIVE_TIFF_PROPERTY, true)) {
-        	  		log.fine("Using iText TIFF support...");
-        	  		return super.createReader(tiff);
-        	  	} else {
-        	  		log.fine("Using native (libtiff) TIFF support...");
-        	  		return new LibTIFFImageReader(tiff);
-        	  	}
-            }  
-        };
-        return true;
+    	yajhfc.pdf.EntryPoint.haveNativeLibTIFF = true;
+    	
+    	TIFFImageReaderFactory.DEFAULT = new TIFFImageReaderFactory() {
+    	    @Override
+    	    public TIFFImageReader createReader(File tiff) throws IOException {
+    	        if (Launcher2.isPropertyTrue(USE_NATIVE_TIFF_PROPERTY, true) &&
+    	                yajhfc.pdf.EntryPoint.getOptions().enableNativeLibTIFF) {
+                    log.fine("Using native (libtiff) TIFF support...");
+                    return new LibTIFFImageReader(tiff);
+    	        } else {
+                    log.fine("Using iText TIFF support...");
+                    return super.createReader(tiff);
+    	        }
+    	    }  
+    	};
+    	return true;
     }
 
     /**
