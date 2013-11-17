@@ -58,7 +58,7 @@ public final class LibTIFFErrorHandler implements LibTiffErrWarnHandler {
 		byte[] buf = new byte[512];
 		int rv = LibC.INSTANCE.vsnprintf(buf, buf.length, fmt, ap);
 		
-		if (rv != 0) {
+		if (rv >= 0) {
 			lastMessage = module + ": " + Native.toString(buf);
 			log.log(logLevel, "libtiff " + kind + ": " + lastMessage);
 		} else {
