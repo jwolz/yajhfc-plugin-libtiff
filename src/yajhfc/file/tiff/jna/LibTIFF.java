@@ -51,4 +51,8 @@ public interface LibTIFF extends Library {
     Pointer TIFFSetErrorHandler(LibTiffErrWarnHandler handler);
     //TIFFWarningHandler TIFFSetWarningHandler(TIFFWarningHandler handler);
     Pointer TIFFSetWarningHandler(LibTiffErrWarnHandler handler);
+    
+    String TIFFGetVersion();
+    
+    int TIFFIsTiled(TIFFPointer handle);
 }

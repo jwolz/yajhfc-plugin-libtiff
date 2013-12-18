@@ -329,9 +329,10 @@ public class LibTIFFFile implements TIFFConstants {
     public BufferedImage readImage() throws IOException {
         short bps = getShortField(TIFFTAG_BITSPERSAMPLE);
         short spp = getShortField(TIFFTAG_SAMPLESPERPIXEL);
-        log.fine("Page=" + page + ";BitsPerSample=" + bps + ";SamplesPerPixel=" + spp);
+        boolean tiled = LibTIFF.INSTANCE.TIFFIsTiled(tiffPointer) != 0;
+        log.fine("Page=" + page + ";BitsPerSample=" + bps + ";SamplesPerPixel=" + spp + ";tiled=" + tiled);
         
-        if (bps==1 && spp==1) {
+        if (!tiled && bps==1 && spp==1) {
             log.fine("Reading image as Black&White");
             return readBWImage();
         } else { 
