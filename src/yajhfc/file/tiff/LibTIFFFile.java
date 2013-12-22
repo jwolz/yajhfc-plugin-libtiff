@@ -58,10 +58,10 @@ public class LibTIFFFile implements TIFFConstants {
         try {  
         	LibTIFFErrorHandler.initialize();
         } catch (UnsatisfiedLinkError e) {
-        	System.setProperty(LibTIFFEntryPoint.USE_NATIVE_TIFF_PROPERTY, "false");
+        	LibTIFFEntryPoint.disableNativeTIFF();
         	throw new RuntimeException("Could not initialize libtiff, disabling native TIFF support.", e);
         } catch (NoClassDefFoundError e) {
-        	System.setProperty(LibTIFFEntryPoint.USE_NATIVE_TIFF_PROPERTY, "false");
+        	LibTIFFEntryPoint.disableNativeTIFF();
         	throw new RuntimeException("Could not initialize libtiff, disabling native TIFF support.", e);
         } 
     }
