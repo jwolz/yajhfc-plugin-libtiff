@@ -5,9 +5,12 @@ package yajhfc.file.tiff;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import yajhfc.Utils;
 import yajhfc.file.tiff.jna.LibTIFF;
 import yajhfc.launch.Launcher2;
 import yajhfc.plugin.PluginManager;
@@ -31,28 +34,38 @@ public class LibTIFFEntryPoint {
     public static boolean init(int startupMode) {
         log.fine("Initializing libtiff plugin...");
         yajhfc.pdf.EntryPoint.haveNativeLibTIFF = true;
-        try {
-            String tiffVersion = LibTIFF.INSTANCE.TIFFGetVersion();
-            log.info("libtiff version: " + tiffVersion);
-            yajhfc.pdf.EntryPoint.nativeTIFFVersion = tiffVersion;
-
-            TIFFImageReaderFactory.DEFAULT = new TIFFImageReaderFactory() {
-                @Override
-                public TIFFImageReader createReader(File tiff) throws IOException {
-                    if (Launcher2.isPropertyTrue(USE_NATIVE_TIFF_PROPERTY, true) &&
-                            yajhfc.pdf.EntryPoint.getOptions().enableNativeLibTIFF) {
-                        log.fine("Using native (libtiff) TIFF support...");
-                        return new LibTIFFImageReader(tiff);
-                    } else {
-                        log.fine("Using iText TIFF support...");
-                        return super.createReader(tiff);
-                    }
-                }  
-            };
-        } catch (Throwable e) {
-            log.log(Level.SEVERE, "Can not load libtiff, plugin disabled", e);
-            yajhfc.pdf.EntryPoint.nativeTIFFVersion = "libtiff load error: " + e.toString();
-        }
+        
+        
+        // Asynchronously load the libtiff and display the version
+        Callable<String> tiffVersion = new Callable<String>() {
+            @Override
+            public String call() throws Exception {
+                try {
+                    String tiffVersion = LibTIFF.INSTANCE.TIFFGetVersion();
+                    log.info("libtiff version: " + tiffVersion);
+                    return tiffVersion;
+                } catch (Throwable e) {
+                    log.log(Level.SEVERE, "Can not load libtiff, plugin disabled", e);
+                    disableNativeTIFF();
+                    return "libtiff load error: " + e.toString();
+                }
+            }
+        };
+        yajhfc.pdf.EntryPoint.nativeTIFFVersion = Utils.executorService.schedule(tiffVersion, 100, TimeUnit.MILLISECONDS);
+        
+        TIFFImageReaderFactory.DEFAULT = new TIFFImageReaderFactory() {
+            @Override
+            public TIFFImageReader createReader(File tiff) throws IOException {
+                if (Launcher2.isPropertyTrue(USE_NATIVE_TIFF_PROPERTY, true) &&
+                        yajhfc.pdf.EntryPoint.getOptions().enableNativeLibTIFF) {
+                    log.fine("Using native (libtiff) TIFF support...");
+                    return new LibTIFFImageReader(tiff);
+                } else {
+                    log.fine("Using iText TIFF support...");
+                    return super.createReader(tiff);
+                }
+            }  
+        };
         return true;
     }
 
@@ -63,6 +76,10 @@ public class LibTIFFEntryPoint {
         PluginManager.internalPlugins.add(LibTIFFEntryPoint.class);
         yajhfc.pdf.EntryPoint.main(args);
 
+    }
+
+    public static void disableNativeTIFF() {
+        System.setProperty(USE_NATIVE_TIFF_PROPERTY, "false");
     }
 
 }

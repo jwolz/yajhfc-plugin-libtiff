@@ -16,7 +16,7 @@ import com.sun.jna.Platform;
  * @author jonas
  *
  */
-public class LibName {
+public final class LibName {
 	static {
     	if (Platform.isWindows()) {
     		NativeLibrary.addSearchPath(LibName.getLibTIFFName(), Utils.getApplicationDir().getAbsolutePath() + File.separatorChar + "tiff-win32");
