@@ -3,7 +3,6 @@
  */
 package yajhfc.file.tiff;
 
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
@@ -54,9 +53,7 @@ public class LibTIFFImageReader implements TIFFImageReader {
         public Image next() {
             Image img;
             try {
-                BufferedImage bi = tifFile.readImage();
-                img = Image.getInstance(bi, null);
-                img.setDpi((int)tifFile.getResolutionX(), (int)tifFile.getResolutionY());
+                img = tifFile.readPDFImage();
                 nextValid = tifFile.nextPage();
                 return img;
             } catch (IOException e) {

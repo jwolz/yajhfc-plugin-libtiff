@@ -13,6 +13,7 @@ import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 import java.util.logging.Logger;
 
 import javax.swing.ImageIcon;
@@ -26,13 +27,16 @@ import yajhfc.file.tiff.jna.LibTIFF;
 import yajhfc.file.tiff.jna.TIFFPointer;
 import yajhfc.tiff.TIFFConstants;
 
+import com.itextpdf.text.BadElementException;
 import com.sun.jna.ptr.FloatByReference;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 import com.sun.jna.ptr.ShortByReference;
 
 /**
- * Read TIFF files using libtiff and JNA
+ * Read TIFF files using libtiff and JNA.
+ * This clas is optimized for reading black and white images as this will be the common case for YajHFC.
+ * Color images are supported, too, but the reading code might not have the maximum performance possible.
  * 
  * @author jonas
  *
@@ -47,7 +51,7 @@ public class LibTIFFFile implements TIFFConstants {
             0x00ff0000,   // Blue
             0xff000000    // Alpha
             );
-    private static final byte[] bw = {(byte) 0xff, (byte) 0};  
+    private static final byte[] bw = {(byte) 0, (byte) 0xff};  
     protected static final IndexColorModel ColorModel_BlackAndWhite = new IndexColorModel(1, 2, bw, bw, bw);
     
     protected TIFFPointer tiffPointer;
@@ -232,11 +236,11 @@ public class LibTIFFFile implements TIFFConstants {
     }
     
     /**
-     * Reads a 1 bpp image
+     * Returns a byte array containing the 1 bpp image data. Photometric interpretation returned always is PHOTOMETRIC_MINISBLACK
      * @return
      * @throws IOException
      */
-    public BufferedImage readBWImage() throws IOException {
+    private byte[] readBWImageBuffer() throws IOException {
         // Check that it is of a type that we support
         short bps = getShortField(TIFFTAG_BITSPERSAMPLE);
         if (bps != 1)
@@ -246,13 +250,12 @@ public class LibTIFFFile implements TIFFConstants {
             throw new IOException("Not a black&white image (Either undefined or unsupported number of samples per pixel: " + spp + ")");
         
         // Read in the possibly multiple strips
-        int stripSize = LibTIFF.INSTANCE.TIFFStripSize (tiffPointer);
-        int stripMax = LibTIFF.INSTANCE.TIFFNumberOfStrips (tiffPointer);
+        int stripSize = LibTIFF.INSTANCE.TIFFStripSize(tiffPointer);
+        int stripMax = LibTIFF.INSTANCE.TIFFNumberOfStrips(tiffPointer);
         int imageOffset = 0;
-        int bufferSize = stripMax * stripSize;
         log.fine("Page="+page+";stripSize="+stripSize+";stripMax="+stripMax);
         
-        byte[] buffer = new byte[bufferSize];
+        byte[] buffer = new byte[stripMax * stripSize];
         ByteBuffer bBuf = ByteBuffer.wrap(buffer);
 
         for (int stripCount = 0; stripCount < stripMax; stripCount++){
@@ -265,10 +268,10 @@ public class LibTIFFFile implements TIFFConstants {
         }
 
         short photo = getShortField(TIFFTAG_PHOTOMETRIC);
-        if(photo != PHOTOMETRIC_MINISWHITE){
+        if(photo != PHOTOMETRIC_MINISBLACK){
             // Flip bits
-            log.info("Fixing the photometric interpretation (photo=" + photo + ")");
-            for(int count = 0; count < bufferSize; count++)
+            log.fine("Fixing the photometric interpretation (photo=" + photo + ")");
+            for(int count = 0; count < buffer.length; count++)
                 buffer[count] = (byte)~buffer[count];
         }
         
@@ -291,13 +294,41 @@ public class LibTIFFFile implements TIFFConstants {
 //                buffer[count] = (byte)tempbyte;
 //            }
 //        }
+        return buffer;
+    }
+    
+    /**
+     * Reads a 1 bpp image as Java image
+     * @return
+     * @throws IOException
+     */
+    public BufferedImage readBWImage() throws IOException {
+        byte[] buffer = readBWImageBuffer();
         
         final int width = getWidth();
         final int height = getHeight();
         log.fine("Page=" + page + ";width=" + width + ";height=" + height);
-        DataBuffer imgBuf = new DataBufferByte(buffer, bufferSize);
+        DataBuffer imgBuf = new DataBufferByte(buffer, buffer.length);
         WritableRaster wr = Raster.createPackedRaster(imgBuf, width, height, 1, null);
         return new BufferedImage(ColorModel_BlackAndWhite, wr, false, null);
+    }
+    
+    /**
+     * Reads a 1 bpp image as iText image
+     * @return
+     * @throws IOException
+     * @throws BadElementException 
+     */
+    public com.itextpdf.text.Image readBWPDFImage() throws IOException, BadElementException {
+        byte[] buffer = readBWImageBuffer();
+        
+        final int width = getWidth();
+        final int height = getHeight();
+        log.fine("Page=" + page + ";width=" + width + ";height=" + height);
+        
+        com.itextpdf.text.Image img = com.itextpdf.text.Image.getInstance(width, height, 1, 1, buffer);
+        img.setDpi((int)getResolutionX(), (int)getResolutionY());
+        return img;
     }
     
     /**
@@ -311,7 +342,8 @@ public class LibTIFFFile implements TIFFConstants {
         log.fine("Page=" + page + ";width=" + width + ";height=" + height);
 
         int[] imageData = new int[width * height];
-        int rv = LibTIFF.INSTANCE.TIFFReadRGBAImageOriented(tiffPointer, width, height, imageData, ORIENTATION_TOPLEFT, 0);
+        IntBuffer imageBuf = IntBuffer.wrap(imageData);
+        int rv = LibTIFF.INSTANCE.TIFFReadRGBAImageOriented(tiffPointer, width, height, imageBuf, ORIENTATION_TOPLEFT, 0);
         if (rv == 0)
             throw LibTIFFErrorHandler.createIOException("Could not successfully read the RGBA image");
 
@@ -319,6 +351,8 @@ public class LibTIFFFile implements TIFFConstants {
         WritableRaster wr = Raster.createPackedRaster(imgBuf, width, height, width, ABGR_bandmasks, null);
         return new BufferedImage(ColorModel_AGBR, wr, false, null);
     }
+    
+    
     
     /**
      * Reads the current page as a Java image.
@@ -341,6 +375,42 @@ public class LibTIFFFile implements TIFFConstants {
         }
     }
     
+    
+    /**
+     * Reads the current page as a AGBR color image
+     * @return
+     * @throws IOException 
+     * @throws BadElementException 
+     */
+    public com.itextpdf.text.Image readAGBRPDFImage() throws IOException, BadElementException {
+        com.itextpdf.text.Image img = com.itextpdf.text.Image.getInstance(readAGBRImage(), null);
+        img.setDpi((int)getResolutionX(), (int)getResolutionY());
+        return img;
+    }
+    
+    /**
+     * Reads the current page as a iText image.
+     * Uses readBWPDFImage if 1 bit per pixel, else readAGBRPDFImage
+     * @return
+     * @throws IOException
+     * @throws BadElementException 
+     */
+    public com.itextpdf.text.Image readPDFImage() throws IOException, BadElementException {
+        short bps = getShortField(TIFFTAG_BITSPERSAMPLE);
+        short spp = getShortField(TIFFTAG_SAMPLESPERPIXEL);
+        boolean tiled = LibTIFF.INSTANCE.TIFFIsTiled(tiffPointer) != 0;
+        log.fine("Page=" + page + ";BitsPerSample=" + bps + ";SamplesPerPixel=" + spp + ";tiled=" + tiled);
+        
+        if (!tiled && bps==1 && spp==1) {
+            log.fine("Reading image as Black&White");
+            return readBWPDFImage();
+        } else { 
+            log.fine("Reading image as AGBR");
+            return readAGBRPDFImage();
+        }
+    }
+    
+    
     @Override
     protected void finalize() throws Throwable {
         close();
@@ -356,32 +426,32 @@ public class LibTIFFFile implements TIFFConstants {
      */
     public static void main(String[] args) throws IOException {
 
-        File f;
         if (args.length == 0)
-         f = new File("/home/jonas/java/yajhfc/tiffbug/test.tif"); 
-        else
-         f = new File(args[0]);
+            args = new String[] { "/home/jonas/java/yajhfc/tiffbug/test.tif" }; 
+        
+        for (String f : args) {
+            LibTIFFFile tif = new LibTIFFFile(new File(f));
+            do {
+                final String page = f + ": Page " + tif.getPage() + " (" + tif.getWidth() + "x" + tif.getHeight() + "; resX=" + tif.getResolutionX() + "; resY=" + tif.getResolutionY() +  ")";
+                final BufferedImage bi = tif.readImage();
+                System.out.println(bi);
+                SwingUtilities.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        JFrame frame = new JFrame(page);
+                        JPanel contentPane = new JPanel(new BorderLayout());
+                        JLabel image = new JLabel(new ImageIcon(bi));
+                        contentPane.add(new JScrollPane(image), BorderLayout.CENTER);
+                        frame.setContentPane(contentPane);
 
-        LibTIFFFile tif = new LibTIFFFile(f);
-        do {
-            final String page = "Page " + tif.getPage() + " (" + tif.getWidth() + "x" + tif.getHeight() + "; resX=" + tif.getResolutionX() + "; resY=" + tif.getResolutionY() +  ")";
-            final BufferedImage bi = tif.readImage();
-            SwingUtilities.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    JFrame frame = new JFrame(page);
-                    JPanel contentPane = new JPanel(new BorderLayout());
-                    JLabel image = new JLabel(new ImageIcon(bi));
-                    contentPane.add(new JScrollPane(image), BorderLayout.CENTER);
-                    frame.setContentPane(contentPane);
-
-                    frame.setSize(1000, 800);
-                    frame.setVisible(true);
-                    frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                } 
-            });
-        } while (tif.nextPage());
-        tif.close();
+                        frame.setSize(1000, 800);
+                        frame.setVisible(true);
+                        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                    } 
+                });
+            } while (tif.nextPage());
+            tif.close();
+        }
         
 //        int[] bandmasks = new int[] { 0x000000ff , 0x0000ff00, 0x00ff0000, 0xff000000};
 //        ColorModel ABGR = new DirectColorModel(32,
