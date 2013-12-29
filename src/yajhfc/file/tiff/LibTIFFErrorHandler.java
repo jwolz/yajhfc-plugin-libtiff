@@ -20,11 +20,14 @@ public final class LibTIFFErrorHandler implements LibTiffErrWarnHandler {
 	
 	public synchronized static void initialize() {
 		if (!initialized) {
+		    log.fine("Loading libc...");
 		    // Initialize LibC
 		    LibC.INSTANCE.hashCode();
+		    log.fine("Installing Error and Warning handlers...");
 			LibTIFF.INSTANCE.TIFFSetErrorHandler(ERR_HANDLER);
 			LibTIFF.INSTANCE.TIFFSetWarningHandler(WARN_HANDLER);
 			initialized = true;
+			log.fine("Error and Warning handlers installed.");
 		}
 	}
 	
@@ -62,7 +65,7 @@ public final class LibTIFFErrorHandler implements LibTiffErrWarnHandler {
 			lastMessage = module + ": " + Native.toString(buf);
 			log.log(logLevel, "libtiff " + kind + ": " + lastMessage);
 		} else {
-			log.severe("vsnprintf return code: " + rv);
+			log.severe("vsnprintf return code: " + rv + "; module=" + module + "; fmt=" + fmt + "; ap=" + ap);
 		}
 	}
 	
