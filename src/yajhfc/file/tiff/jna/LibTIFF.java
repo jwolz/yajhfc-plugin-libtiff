@@ -34,10 +34,10 @@ public interface LibTIFF extends Library {
     int TIFFGetField(TIFFPointer handle, int tag_t, ByReference... args);
     
     //int TIFFReadRGBAImage(TIFF*, uint32, uint32, uint32*, int);
-    int TIFFReadRGBAImage(TIFFPointer handle, int width, int height, Buffer raster, int stopOnError);
+    int TIFFReadRGBAImage(TIFFPointer handle, int width, int height, int[] raster, int stopOnError);
     
     //int TIFFReadRGBAImageOriented(TIFF *tif, uint32 width, uint32 height, uint32 *raster, int orientation, int stopOnError)
-    int TIFFReadRGBAImageOriented(TIFFPointer tif, int width, int height, Buffer raster, int orientation, int stopOnError);
+    int TIFFReadRGBAImageOriented(TIFFPointer tif, int width, int height, int[] raster, int orientation, int stopOnError);
     
     
     //  tsize_t TIFFStripSize(TIFF*);
