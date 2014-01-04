@@ -13,7 +13,6 @@ import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
 import java.util.logging.Logger;
 
 import javax.swing.ImageIcon;
@@ -342,8 +341,7 @@ public class LibTIFFFile implements TIFFConstants {
         log.fine("Page=" + page + ";width=" + width + ";height=" + height);
 
         int[] imageData = new int[width * height];
-        IntBuffer imageBuf = IntBuffer.wrap(imageData);
-        int rv = LibTIFF.INSTANCE.TIFFReadRGBAImageOriented(tiffPointer, width, height, imageBuf, ORIENTATION_TOPLEFT, 0);
+        int rv = LibTIFF.INSTANCE.TIFFReadRGBAImageOriented(tiffPointer, width, height, imageData, ORIENTATION_TOPLEFT, 0);
         if (rv == 0)
             throw LibTIFFErrorHandler.createIOException("Could not successfully read the RGBA image");
 
