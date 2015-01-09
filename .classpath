@@ -3,7 +3,7 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/yajhfc"/>
-	<classpathentry kind="lib" path="/data/jonas/javalib/itext/itextpdf-5.4.1.jar" sourcepath="/data/jonas/javalib/itext/itextpdf-5.4.1-sources.jar"/>
+	<classpathentry kind="lib" path="/home/jonas/java/lib/itext/itextpdf-5.5.4.jar" sourcepath="/data/jonas/javalib/itext/itextpdf-5.4.1-sources.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/yajhfc-pdf-plugin"/>
 	<classpathentry kind="lib" path="/home/jonas/java/jna/jna.jar"/>
 	<classpathentry kind="output" path="bin"/>
