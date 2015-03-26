@@ -13,6 +13,7 @@ import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.ImageIcon;
@@ -326,7 +327,12 @@ public class LibTIFFFile implements TIFFConstants {
         log.fine("Page=" + page + ";width=" + width + ";height=" + height);
         
         com.itextpdf.text.Image img = com.itextpdf.text.Image.getInstance(width, height, 1, 1, buffer);
-        img.setDpi((int)getResolutionX(), (int)getResolutionY());
+        try {
+            img.setDpi((int)getResolutionX(), (int)getResolutionY());
+        } catch (Exception e) {
+            log.log(Level.WARNING, "Could not set image resolution, using default of 196x196dpi", e);
+            img.setDpi(196, 196);
+        }
         return img;
     }
     
@@ -382,7 +388,12 @@ public class LibTIFFFile implements TIFFConstants {
      */
     public com.itextpdf.text.Image readAGBRPDFImage() throws IOException, BadElementException {
         com.itextpdf.text.Image img = com.itextpdf.text.Image.getInstance(readAGBRImage(), null);
-        img.setDpi((int)getResolutionX(), (int)getResolutionY());
+        try {
+            img.setDpi((int)getResolutionX(), (int)getResolutionY());
+        } catch (Exception e) {
+            log.log(Level.WARNING, "Could not set image resolution, using default of 196x196dpi", e);
+            img.setDpi(196, 196);
+        }
         return img;
     }
     
