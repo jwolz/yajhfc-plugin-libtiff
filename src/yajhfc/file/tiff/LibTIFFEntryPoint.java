@@ -51,7 +51,7 @@ public class LibTIFFEntryPoint {
                 }
             }
         };
-        yajhfc.pdf.EntryPoint.nativeTIFFVersion = Utils.executorService.schedule(tiffVersion, 100, TimeUnit.MILLISECONDS);
+        yajhfc.pdf.EntryPoint.nativeTIFFVersion = Utils.poolExecutor.submit(tiffVersion);
         
         TIFFImageReaderFactory.DEFAULT = new TIFFImageReaderFactory() {
             @Override
